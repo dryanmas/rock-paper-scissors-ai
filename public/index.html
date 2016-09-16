@@ -1,0 +1,50 @@
+<html>
+<head>
+    <title>Rock Paper Scissor AI Player</title>
+</head>
+<body>
+<h3>Input</h3>
+<input>
+<button>Play</button>
+<h3>Output</h3>
+<div></div>
+<h3>Game History</h3>
+<button>Reset</button>
+<button>Random</button>
+<ul>
+
+</ul>
+</body>
+</html>
+
+<script src="https://code.jquery.com/jquery-3.1.0.min.js" type="text/javascript" charset="utf-8"></script>
+
+<script>
+    var game = [
+        {
+            move: 'r',
+            oppMove: 's',
+            result: 'won'
+        },
+        {
+            move: 's',
+            oppMove: 's',
+            result: 'tied'
+        }
+    ];
+
+    var lastRound = game[game.length-1];
+    var lastMove = lastRound.move;
+    var lastOppMove = lastRound.oppMove;
+
+    var testStr = "console.log(lastMove); return 'r';";
+
+    var play = eval('(function(){ return function(g, lr, lm, lom){' + testStr + '}}())');
+//    var play = new function(game, lastRound, lastMove, lastOppMove) {
+//        eval(testStr);
+//    };
+
+    var move = play(game, lastRound, lastMove, lastOppMove);
+    console.log('move', move);
+
+</script>

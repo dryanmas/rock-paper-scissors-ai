@@ -4,7 +4,8 @@
   "description": "An app to test RPS AI players",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "test",
+    "start": "./node_modules/.bin/nodemon index.js --ignore node_modules/"
   },
   "repository": {
     "type": "git",
@@ -18,6 +19,6 @@
   "homepage": "https://github.com/dryanmas/rock-paper-scissors-ai#readme",
   "dependencies": {
     "express": "^4.14.0",
-    "replit-client": "^0.6.1"
+    "nodemon": "^1.10.2"
   }
 }
