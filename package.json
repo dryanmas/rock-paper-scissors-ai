@@ -1,0 +1,23 @@
+{
+  "name": "rock-paper-scissors-ai",
+  "version": "1.0.0",
+  "description": "An app to test RPS AI players",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dryanmas/rock-paper-scissors-ai.git"
+  },
+  "author": "Diandra Ryan-Mas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dryanmas/rock-paper-scissors-ai/issues"
+  },
+  "homepage": "https://github.com/dryanmas/rock-paper-scissors-ai#readme",
+  "dependencies": {
+    "express": "^4.14.0",
+    "replit-client": "^0.6.1"
+  }
+}
