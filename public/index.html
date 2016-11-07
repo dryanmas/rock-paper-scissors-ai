@@ -51,11 +51,6 @@
                 move = randomPlayer.nextMove();
             }
 
-            var options = ['r', 'p', 's'];
-            if (options.indexOf(move) < 0) {
-                throw new Error('Invalid move');
-            }
-
             var newMove = new Move(move, this.AIPlayer.nextMove());
             this.moves.push(newMove);
         };
@@ -112,6 +107,14 @@
 
     var Move = function(move, AIMove) {
 
+        this.errorCheck = function(move) {
+            var options = ['r', 'p', 's'];
+        
+            if (options.indexOf(move) < 0) {
+                throw new Error('Invalid move', move);
+            }
+        }
+
         this.get = function() {
             return {
                 move: this.move,
@@ -144,6 +147,9 @@
                 return 'lost';
             }
         };
+
+        this.errorCheck(move);
+        this.errorCheck(AIMove);
 
         this.move = move;
         this.AIMove = AIMove;
@@ -181,7 +187,7 @@
 /** JQuery nonsense **/
 
 var game = new Game();
-game.setOpponent(new Player());
+// game.setOpponent(new Player());
 
 var submitPlayer = function(code) {
     var play = eval('(function(){ return function(rounds, lastRound, move, oppMove, result){' + code + '}}())');
@@ -214,6 +220,7 @@ var clickSubmit = function() {
 
     try {
         submitPlayer(code);
+        clearGame();
     } catch (e) {
         console.error('Failed to create AI player');
         console.log(e);
