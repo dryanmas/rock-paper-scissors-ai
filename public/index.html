@@ -215,11 +215,20 @@ var play = function(move) {
     game.play(mappedMove);
 }
 
+var saveLocally = function(code) {
+    localStorage.setItem('code', code);
+};
+
+var getCode = function() {
+    return localStorage.getItem('code') || '';
+}
+
 var clickSubmit = function() {
     var code = $('textarea').val()
 
     try {
         submitPlayer(code);
+        saveLocally(code);
         clearGame();
     } catch (e) {
         console.error('Failed to create AI player');
@@ -289,6 +298,7 @@ $( document ).ready(function() {
     $('#play').click(clickPlay);
     $('#random').click(clickRandom);
     $('#reset').click(clickReset);
+    $('#code').text(getCode());
 
 });
 
