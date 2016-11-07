@@ -5,24 +5,27 @@
     <title>Rock Paper Scissor AI Player</title>
 </head>
 <body>
-<h2>Write Your AI Player</h2>
-<p>The following variables are available to you: <b>rounds, lastRound, move, oppMove, result</b></p>
+
+<h2>Write your AI Player</h2>
+<p>The following variables are available to you: <b>rounds, lastRound, AIMove, liveMove, result</b></p>
 <textarea id='code'></textarea>
 <br>
 <button id='submit'>Submit</button>
+
 <h2>Rock Paper Scissors Game</h2>
 <p>The following are valid inputs: <b>r, p, s, rock, paper, scissors</b></p>
 <input id='move'>
 <button id='play'>Play</button>
+
 <h3>Score</h3>
-<div><p id='your-score'></p></div>
 <div><p id='ai-score'></p></div>
+<div><p id='live-score'></p></div>
+
 <h3>Game History</h3>
 <button id='reset'>Reset</button>
 <button id='random'>Random</button>
-<ul>
+<ul></ul>
 
-</ul>
 </body>
 </html>
 
@@ -79,13 +82,13 @@
 
         this.getScore = function() {
             var score = {
-                yourScore: 0,
+                liveScore: 0,
                 AIScore: 0
             };
 
             var tally = function(move) {
                 if (move.AIResult === 'lost') {
-                    score.yourScore++;
+                    score.liveScore++;
                 } else if (move.AIResult === 'won') {
                     score.AIScore++;
                 }
@@ -106,7 +109,7 @@
         };
     };
 
-    var Move = function(move, AIMove) {
+    var Move = function(liveMove, AIMove) {
 
         this.errorCheck = function(move) {
             var options = ['r', 'p', 's'];
@@ -118,7 +121,7 @@
 
         this.get = function() {
             return {
-                move: this.move,
+                liveMove: this.liveMove,
                 AIMove: this.AIMove,
                 AIResult: this.AIResult
             }
@@ -137,22 +140,22 @@
         };
 
         this.getResult = function() {
-            var move = this.move;
+            var liveMove = this.liveMove;
             var AIMove = this.AIMove;
 
-            if (move === AIMove) {
+            if (liveMove === AIMove) {
                 return 'tied';
-            } else if (this.beats(AIMove, move)) {
+            } else if (this.beats(AIMove, liveMove)) {
                 return 'won';
             } else {
                 return 'lost';
             }
         };
 
-        this.errorCheck(move);
+        this.errorCheck(liveMove);
         this.errorCheck(AIMove);
 
-        this.move = move;
+        this.liveMove = liveMove;
         this.AIMove = AIMove;
         this.AIResult = this.getResult();
     };
@@ -180,7 +183,7 @@
             var rounds = this.game.getAll();
             var lastRound = this.game.getLastRound();
 
-            return this.play(rounds, lastRound, lastRound.AIMove, lastRound.move, lastRound.AIResult);
+            return this.play(rounds, lastRound, lastRound.AIMove, lastRound.liveMove, lastRound.AIResult);
         };
     };
 
@@ -191,7 +194,7 @@ var game = new Game();
 // game.setOpponent(new Player());
 
 var submitPlayer = function(code) {
-    var play = eval('(function(){ return function(rounds, lastRound, move, oppMove, result){' + code + '}}())');
+    var play = eval('(function(){ return function(rounds, lastRound, AIMove, liveMove, result){' + code + '}}())');
     var opponent = new Player(play);
     game.setOpponent(opponent);
 };
@@ -230,7 +233,7 @@ var clickSubmit = function() {
     try {
         submitPlayer(code);
         saveLocally(code);
-        clearGame();
+        clickReset();
     } catch (e) {
         console.error('Failed to create AI player');
         console.log(e);
@@ -268,8 +271,9 @@ var updateGame = function() {
 var updateScore = function() {
     var stats = game.getScore();
 
-    $('#your-score').text('Your Score: ' + stats.yourScore);
-    $('#ai-score').text('AI Score: ' + stats.AIScore);
+    $('#ai-score').text('AI Player: ' + stats.AIScore);
+    $('#live-score').text('Live Player: ' + stats.liveScore);
+
 }
 
 var clearGame = function() {
@@ -283,12 +287,11 @@ var addMove = function(move, i) {
         s: 'scissors'
     };
 
-    var round = '<h4>Round ' + (i+1) + '</h5>'  
-    var yourMove = '<p>Move: ' + map[move.move] + '</p>';
-    var AIMove = '<p>AI Move: ' + map[move.AIMove] + '</p>';
-    var result = '<p>AI Result: ' + move.AIResult + '</p>';
+    var round = '<h4>Round ' + (i+1) + ' - AI ' + move.AIResult + '</h5>'  
+    var AIMove = '<p>AI Player: ' + map[move.AIMove] + '</p>';
+    var liveMove = '<p>Live Player: ' + map[move.liveMove] + '</p>';
 
-    var el = '<li>' + round.concat(yourMove, AIMove, result) + '</li>'
+    var el = '<li>' + round.concat(AIMove, liveMove) + '</li>'
 
     $('ul').prepend(el);
 };
