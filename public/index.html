@@ -8,6 +8,7 @@
 
 <h2>Write your AI Player</h2>
 <p>The following variables are available to you: <b>AIMove, liveMove, result, lastRound, rounds</b></p>
+<p>Your code must return one of the following values: <b>'r', 'p', 's'</b></p>
 <textarea id='code'></textarea>
 <br>
 <button id='submit'>Submit</button>
@@ -160,7 +161,7 @@
         this.AIResult = this.getResult();
     };
 
-    //player defaults to random is no play function
+    //player defaults to random if no play function
     var Player = function(play, game) {
         var randomPlay = function() {
             var options = ['r', 'p', 's'];

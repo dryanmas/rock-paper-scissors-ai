@@ -19,6 +19,7 @@
   "homepage": "https://github.com/dryanmas/rock-paper-scissors-ai#readme",
   "dependencies": {
     "express": "^4.14.0",
-    "nodemon": "^1.10.2"
+    "nodemon": "^1.10.2",
+    "serve-favicon": "^2.3.0"
   }
 }
