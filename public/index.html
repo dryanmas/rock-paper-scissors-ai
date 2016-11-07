@@ -1,16 +1,25 @@
+
 <html>
 <head>
+    <LINK REL=StyleSheet HREF="styles.css">
     <title>Rock Paper Scissor AI Player</title>
 </head>
 <body>
-<h3>Input</h3>
-<input>
-<button>Play</button>
-<h3>Output</h3>
-<div></div>
+<h2>Write Your AI Player</h2>
+<p>The following variables are available to you: <b>rounds, lastRound, move, oppMove, result</b></p>
+<textarea id='code'></textarea>
+<br>
+<button id='submit'>Submit</button>
+<h2>Rock Paper Scissors Game</h2>
+<p>The following are valid inputs: <b>r, p, s, rock, paper, scissors</b></p>
+<input id='move'>
+<button id='play'>Play</button>
+<h3>Score</h3>
+<div><p id='your-score'></p></div>
+<div><p id='ai-score'></p></div>
 <h3>Game History</h3>
-<button>Reset</button>
-<button>Random</button>
+<button id='reset'>Reset</button>
+<button id='random'>Random</button>
 <ul>
 
 </ul>
@@ -20,31 +29,268 @@
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" type="text/javascript" charset="utf-8"></script>
 
 <script>
-    var game = [
-        {
-            move: 'r',
-            oppMove: 's',
-            result: 'won'
-        },
-        {
-            move: 's',
-            oppMove: 's',
-            result: 'tied'
+
+/** Necessary classes defined here **/
+
+   var Game = function() {
+        this.moves = [];
+
+        this.setOpponent = function(player) {
+            this.AIPlayer = player;
+            this.AIPlayer.setGame(this);
         }
-    ];
 
-    var lastRound = game[game.length-1];
-    var lastMove = lastRound.move;
-    var lastOppMove = lastRound.oppMove;
+        //if no move is provided a random move will be made
+        this.play = function(move) {
+            if (!this.AIPlayer) {
+                throw new Error('AI Player has not been set')
+            }
 
-    var testStr = "console.log(lastMove); return 'r';";
+            if (!move) {
+                var randomPlayer = new Player(null, this);
+                move = randomPlayer.nextMove();
+            }
 
-    var play = eval('(function(){ return function(g, lr, lm, lom){' + testStr + '}}())');
-//    var play = new function(game, lastRound, lastMove, lastOppMove) {
-//        eval(testStr);
-//    };
+            var newMove = new Move(move, this.AIPlayer.nextMove());
+            this.moves.push(newMove);
+        };
+        
+        this.getAll = function() {
+            var getMove = function(move) {
+                return move.get();
+            }
+            
+            return this.moves.map(getMove);
+        }
 
-    var move = play(game, lastRound, lastMove, lastOppMove);
-    console.log('move', move);
+        this.reset = function() {
+            this.moves = [];
+        };
+
+        this.random = function(count) {
+            count = count || 5;
+            this.reset();
+
+            for (var i = 0; i < count; i++) {
+                this.play();
+            }
+        };
+
+        this.getScore = function() {
+            var score = {
+                yourScore: 0,
+                AIScore: 0
+            };
+
+            var tally = function(move) {
+                if (move.AIResult === 'lost') {
+                    score.yourScore++;
+                } else if (move.AIResult === 'won') {
+                    score.AIScore++;
+                }
+            };
+
+            this.moves.forEach(tally);
+
+            return score;
+        };
+
+        this.getLastRound = function() {
+            var i = this.moves.length-1;
+            var lastMove = this.moves[i];
+            
+            if (!lastMove) { return {}; }
+            
+            return lastMove.get();
+        };
+    };
+
+    var Move = function(move, AIMove) {
+
+        this.errorCheck = function(move) {
+            var options = ['r', 'p', 's'];
+        
+            if (options.indexOf(move) < 0) {
+                throw new Error('Invalid move', move);
+            }
+        }
+
+        this.get = function() {
+            return {
+                move: this.move,
+                AIMove: this.AIMove,
+                AIResult: this.AIResult
+            }
+        }
+
+        //returns true is move1 beats move2
+        //false on tie or move2 beats move1
+        this.beats = function(move1, move2) {
+            var map = {
+                'r': 's',
+                's': 'p',
+                'p': 'r'
+            };
+
+            return map[move1] === move2;
+        };
+
+        this.getResult = function() {
+            var move = this.move;
+            var AIMove = this.AIMove;
+
+            if (move === AIMove) {
+                return 'tied';
+            } else if (this.beats(AIMove, move)) {
+                return 'won';
+            } else {
+                return 'lost';
+            }
+        };
+
+        this.errorCheck(move);
+        this.errorCheck(AIMove);
+
+        this.move = move;
+        this.AIMove = AIMove;
+        this.AIResult = this.getResult();
+    };
+
+    //player defaults to random is no play function
+    var Player = function(play, game) {
+        var randomPlay = function() {
+            var options = ['r', 'p', 's'];
+            var i = Math.floor(Math.random()*3);
+            return options[i];
+        };
+
+        this.play = play || randomPlay;
+        this.game = game;
+
+        this.setGame = function(game) {
+            this.game = game;
+        }
+
+        this.nextMove = function() {
+            if (!this.game) {
+                throw new Error('Must set game on a player before calling nextMove');
+            }
+
+            var rounds = this.game.getAll();
+            var lastRound = this.game.getLastRound();
+
+            return this.play(rounds, lastRound, lastRound.move, lastRound.AIMove, lastRound.AIResult);
+        };
+    };
+
+
+/** JQuery nonsense **/
+
+var game = new Game();
+// game.setOpponent(new Player());
+
+var submitPlayer = function(code) {
+    var play = eval('(function(){ return function(rounds, lastRound, move, oppMove, result){' + code + '}}())');
+    var opponent = new Player(play);
+    game.setOpponent(opponent);
+};
+
+var play = function(move) {
+    var map = {
+        rock: 'r',
+        paper: 'p',
+        scissors: 's',
+        r: 'r',
+        p: 'p',
+        s: 's'
+    }
+
+    var scrub = move.trim().toLowerCase();
+    var mappedMove = map[move];
+
+    if (!mappedMove) {
+        throw new Error('Invalid move');
+    }
+
+    game.play(mappedMove);
+}
+
+var clickSubmit = function() {
+    var code = $('textarea').val()
+
+    try {
+        submitPlayer(code);
+        clearGame();
+    } catch (e) {
+        console.error('Failed to create AI player');
+        console.log(e);
+    }
+
+    console.log('AI Player generated!');
+}
+
+var clickPlay = function() {
+    var move = $('#move').val()
+    play(move);
+
+    $('#move').val('');
+    updateGame();
+};
+
+var clickRandom = function() {
+    game.random();
+    updateGame();
+};
+
+var clickReset = function() {
+    game.reset();
+    updateGame();
+};
+
+var updateGame = function() {
+    clearGame();
+    updateScore();
+
+    var allMoves = game.getAll();
+    allMoves.forEach(addMove);
+};
+
+var updateScore = function() {
+    var stats = game.getScore();
+
+    $('#your-score').text('Your Score: ' + stats.yourScore);
+    $('#ai-score').text('AI Score: ' + stats.AIScore);
+}
+
+var clearGame = function() {
+    $('ul').empty();
+};
+
+var addMove = function(move, i) {
+    var map = {
+        r: 'rock',
+        p: 'paper',
+        s: 'scissors'
+    };
+
+    var round = '<h4>Round ' + (i+1) + '</h5>'  
+    var yourMove = '<p>Move: ' + map[move.move] + '</p>';
+    var AIMove = '<p>AI Move: ' + map[move.AIMove] + '</p>';
+    var result = '<p>AI Result: ' + move.AIResult + '</p>';
+
+    var el = '<li>' + round.concat(yourMove, AIMove, result) + '</li>'
+
+    $('ul').prepend(el);
+};
+ 
+$( document ).ready(function() {
+
+    $('#submit').click(clickSubmit);
+    $('#play').click(clickPlay);
+    $('#random').click(clickRandom);
+    $('#reset').click(clickReset);
+
+});
+
 
 </script>
