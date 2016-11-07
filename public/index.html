@@ -38,6 +38,7 @@
         this.setOpponent = function(player) {
             this.AIPlayer = player;
             this.AIPlayer.setGame(this);
+            this.reset();
         }
 
         //if no move is provided a random move will be made
